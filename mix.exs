@@ -13,7 +13,7 @@ defmodule BtCrawler.Mixfile do
   #
   # Type `mix help compile.app` for more information
   def application do
-    [applications: [:logger]]
+    [applications: [:logger, :postgrex, :ecto]]
   end
 
   # Dependencies can be Hex packages:
@@ -29,7 +29,7 @@ defmodule BtCrawler.Mixfile do
     [{:socket,     "~> 0.2.8"},
      {:bencodex,   "~> 1.0.0"},
      {:pretty_hex, "~> 0.0.1"},
-     {:ecto,       "~> 0.2.4"}
-    ]
+     {:ecto,       "~> 0.2.4"},
+     {:postgrex,   "~> 0.6.0"}]
   end
 end
