@@ -1,4 +1,5 @@
 require Bencodex
+require Logger
 
 defmodule BtCrawler.MlDHT do
 
@@ -27,8 +28,8 @@ defmodule BtCrawler.MlDHT do
   This function returns a bencoded Mainline DHT find_node query. It
   needs a 20 bytes node id and a 20 bytes target id as an argument.
 
-  ## Example
-  iex> BtCrawler.MlDHT.ping "aaaaaaaaaaaaaaaaaaaa", "bbbbbbbbbbbbbbbbbbbb"
+    ## Example
+    iex> BtCrawler.MlDHT.ping "aaaaaaaaaaaaaaaaaaaa", "bbbbbbbbbbbbbbbbbbbb"
   """
   def find_node(id, target) when byte_size(id) == 20 do
     dht_packet "find_node", %{"id" => id, "target" => target}
@@ -44,8 +45,8 @@ defmodule BtCrawler.MlDHT do
   needs a 20 bytes node id and a 20 bytes info_has as an
   argument. Optional arguments are 'want' and :scrape.
 
-  ## Example
-  iex> BtCrawler.MlDHT.ping "aaaaaaaaaaaaaaaaaaaa", "bbbbbbbbbbbbbbbbbbbb"
+    ## Example
+    iex> BtCrawler.MlDHT.ping "aaaaaaaaaaaaaaaaaaaa", "bbbbbbbbbbbbbbbbbbbb"
   """
   def get_peers(id, info_hash) do
     dht_packet "get_peers", get_peers_dict(id, info_hash)
@@ -83,26 +84,76 @@ defmodule BtCrawler.MlDHT do
 
   end
 
-  def parse(map) when is_map(map) do
-    IO.puts inspect(extract_nodes map["r"]["nodes"], [])
+  def parse(%{"y" => status, "e" => error_msg}) when status == "e" do
+    Logger.error error_msg
+    []
   end
+
+  def parse(%{"y" => status, "r" => param_map, "v" => version}) when status == "r" do
+    Logger.info "version: #{String.slice(version, 0..1)}"
+    parse(%{"y" => "r", "r" => param_map})
+  end
+
+  def parse(%{"y" => status, "r" => param_map}) when status == "r" do
+    Logger.info(inspect extract_values param_map["values"])
+    extract_nodes param_map["nodes"]
+  end
+
+
+
+  @doc """
+  This function extracts the Ipv4 address from a 'get_peers' response
+  which are sharing the given infohash. (values)
+
+    ## Example
+    iex> extract_values([<<5, 13, 17, 155, 60, 197>>])
+    [{"5.13.17.155", 15557}]
+  """
+  def extract_values(nil), do: []
+
+  def extract_values(nodes), do: extract_values(nodes, [])
+
+  def extract_values([], result), do: result
+
+  def extract_values([addr | tail], result) do
+    extract_values(tail, result ++ [compact_format(addr)])
+  end
+
 
 
   @doc """
   This function takes the nodes element and extracts all the IPv4
   nodes and returns it as a list.
+
+    ## Excample
+    iex> extract_nodes(<<250, 250, ...>>)
+    [{"46.19.115.68", 47622}]
   """
+  def extract_nodes(nil), do: []
+
+  def extract_nodes(nodes), do: extract_nodes(nodes, [])
+
   def extract_nodes(<<>>, result), do: result
 
-  def extract_nodes(<<_id :: binary-size(20), ip :: binary-size(4),
-                    port :: size(16), _rest :: binary >>, result) do
-    ## extract the IPv4 address
-    << oct1 :: size(8), oct2 :: size(8), oct3 :: size(8), oct4 :: size(8) >> = ip
-
-    result = result ++ ["#{oct1}.#{oct2}.#{oct3}.#{oct4}:#{port}"]
-    extract_nodes _rest, result
+  def extract_nodes(<<_id :: binary-size(20), addr :: binary-size(6),
+                    tail :: binary>>, result) do
+    extract_nodes(tail, result ++ [compact_format(addr)])
   end
 
 
+  @doc """
+  This function takes a byte string which is encoded in compact format
+  and extracts the socket address (IPv4, port) and returns it.
+
+  ## Example
+
+    iex> compact_format(<<46, 19, 115, 68, 186, 6>>)
+    {"46.19.115.68", 47622}
+  """
+  def compact_format(<<ipv4 :: binary-size(4), port :: size(16) >>) do
+    << oct1 :: size(8), oct2 :: size(8),
+       oct3 :: size(8), oct4 :: size(8) >> = ipv4
+    {"#{oct1}.#{oct2}.#{oct3}.#{oct4}", port}
+  end
 
 end

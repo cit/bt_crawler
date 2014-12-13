@@ -2,6 +2,28 @@ defmodule BtCrawlerMlDHTTest do
   use ExUnit.Case
   alias BtCrawler.MlDHT, as: MlDHT
 
+  ## extract values
+
+  test "extract_value works" do
+    result = MlDHT.extract_values([<<5, 13, 17, 155, 60, 197>>])
+    assert result == [{"5.13.17.155", 15557}]
+  end
+
+  ## extract nodes
+
+  test "extract nodes works" do
+    byte_str = <<250, 250, 250, 250, 250, 250, 250, 250, 250, 250,
+                 250, 250, 250, 250, 250, 250, 250, 250, 250, 250,
+                 46, 19, 115, 68, 186, 6>>
+    result = MlDHT.extract_nodes(byte_str)
+   assert result == [{"46.19.115.68", 47622}]
+  end
+
+  test "compact format for IPv4 works" do
+    ip = MlDHT.compact_format(<<46, 19, 115, 68, 186, 6>>)
+    assert ip == {"46.19.115.68", 47622}
+  end
+
   ## PING Query
 
   test "Mainline DHT query ping works" do

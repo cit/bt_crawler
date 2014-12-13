@@ -5,13 +5,44 @@ defmodule Utils do
     all_env[name]
   end
 
-  @doc """
+
+  @doc ~S"""
+  This function converts a tuple like tupel {"192.168.1.1", 1337} to a
+  binary
+
+    ## Example
+
+    iex> tupel_to_ipstr({"192.168.1.1", 1337})
+    "192.168.1.1:1337"
+
+  """
+  def tupel_to_ipstr({ipv4_addr, port}) do
+    "#{ipv4_addr}:#{port}"
+  end
+
+  @doc ~S"""
+  This function converts an ipv4 binary to an tupel.
+
+    ## Example
+
+    iex> ipstr_to_tupel("192.168.1.1:1337")
+    {"192.168.1.1", 1337}
+
+  """
+  def ipstr_to_tupel(ipstr) do
+    [ipv4_address, port] = String.split ipstr, ":"
+    {port, _} = Integer.parse(port)
+    {ipv4_address, port}
+  end
+
+
+  @doc ~S"""
   This function converts binary encoded in hex to a str.
 
-  ## Example
+    ## Example
 
-      ie> hex_to_str("This is a test.")
-      "54686973206973206120746573742e"
+    iex> hex_to_str("This is a test.")
+    "54686973206973206120746573742e"
 
   """
   def hex_to_str(hex_str) when is_binary(hex_str) do
