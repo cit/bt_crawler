@@ -8,7 +8,6 @@ defmodule BtCrawler.DB.Repo do
   end
 
   def priv do
-    app_dir(:simple, "priv")
+    app_dir(:bt_crawler, "priv/repo")
   end
-
 end
