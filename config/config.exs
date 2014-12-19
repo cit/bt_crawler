@@ -13,6 +13,7 @@ use Mix.Config
 config :logger, :console,
 level: :info,
 format: "$date $time [$level] $metadata$message\n",
+colors: [:enabled],
 metadata: [:user_id]
 
 # It is also possible to import configuration files, relative to this
