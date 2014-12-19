@@ -90,9 +90,9 @@ defmodule BtCrawler.PeerHarvester do
     new_entry = %DB.Peers{peer: peer_str, info_hash: "", requested: 0 }
 
     case DB.Peers.validate(new_entry) do
-      %{peer: [{:ok}]} ->
+      {:ok} ->
         new_entry |> DB.Repo.insert
-      %{peer: [{:error, message}]} ->
+      {:error, message} ->
         Logger.error("Could not add new peer: #{message}")
     end
 

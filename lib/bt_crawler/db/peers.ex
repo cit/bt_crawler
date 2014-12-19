@@ -15,7 +15,7 @@ defmodule BtCrawler.DB.Peers do
   entries with a specific peer string. It returns {:ok} if it is
   unique, or {:error} if it a peer already exists.
   """
-  def unique(value, _opts \\ []) do
+  def unique(_opts, value) do
     from(p in BtCrawler.DB.Peers,
          where: p.peer == ^value,
          select: count(p.id))
