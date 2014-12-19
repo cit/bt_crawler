@@ -1,7 +1,6 @@
-require Bencodex
-require Logger
-
 defmodule BtCrawler.MlDHT do
+  require Bencodex
+  require Logger
 
   defp dht_packet(command, options) do
     Bencodex.encode %{
