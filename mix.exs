@@ -5,7 +5,7 @@ defmodule BtCrawler.Mixfile do
     [app: :bt_crawler,
      version: "0.0.1",
      elixir: "~> 1.0",
-     escript: [main_module: BtCrawler.CLI],
+     escript: [main_module: BtCrawler],
      deps: deps]
   end
 
@@ -13,7 +13,7 @@ defmodule BtCrawler.Mixfile do
   #
   # Type `mix help compile.app` for more information
   def application do
-    [mod: {BtCrawler.App, []},
+    [mod: {BtCrawler, []},
      applications: [:logger, :postgrex, :ecto]]
   end
 
@@ -31,6 +31,6 @@ defmodule BtCrawler.Mixfile do
      {:bencodex,   "~> 1.0.0"},
      {:pretty_hex, "~> 0.0.1"},
      {:ecto,       "~> 0.2.4"},
-     {:postgrex,   "~> 0.6.0"}]
+     {:postgrex,   "~> 0.6.0"},
   end
 end

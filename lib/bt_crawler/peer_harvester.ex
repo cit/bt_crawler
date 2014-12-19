@@ -7,59 +7,40 @@ defmodule BtCrawler.PeerHarvester do
   #####
   ## External API
 
-  def start_link(n) do
-    Logger.info "#{__MODULE__} start_link #{inspect self}: #{inspect n}"
-    GenServer.start_link(__MODULE__, n, name: String.to_atom("harvester#{n}"))
-  end
-
-  #####
-  ## GenServer Implementation
-
-
-
-  def harvest do
-    Logger.info "#{__MODULE__} harvest"
-    GenServer.call __MODULE__, :harvest
-  end
-
+  @doc """
+  This function starts the DHT crawler.
+  """
   def start do
-    get_peers Utils.cfg(:bootstrap_node)
-  end
-
-  def handle_cast(:start, state) do
-    Logger.info "#{__MODULE__} handle_cast :start #{inspect self}"
-    get_peers Utils.cfg(:bootstrap_node)
-    {:noreply, state}
-  end
-
-  def handle_call(:harvest, state, _foo) do
-    Logger.info "#{__MODULE__} handle_call :harvest #{inspect self}"
-    get_peers Utils.cfg(:bootstrap_node)
-    {:reply, "foo", state}
-  end
-
-  def init(state) do
-    Logger.info "#{__MODULE__} init #{inspect self}: #{inspect state}"
-    # GenServer.cast __MODULE__, :start
-    # get_peers Utils.cfg(:bootstrap_node)
-    {:ok, state}
+    Logger.info "#{__MODULE__} start (#{inspect self})"
+    get_peers Utils.cfg(:bootstrap_node), 1
   end
 
   #####
   ## Interal API
 
-  def get_peers(peer) do
-    Logger.info "request peer: #{inspect peer}"
+  @doc """
+  This function gets a fresh peer and starts a DHT find_node request
+  to it. If this function gets executed n times, it will exit with
+  :finish.
+  """
+  def get_peers(_peer, n) when n == 10 do
+    Logger.info "finish"
+    exit(:finish)
+  end
+
+  def get_peers(peer, n) do
+    Logger.info "request peer: #{inspect peer} (#{n})"
     payload  = MlDHT.get_peers Utils.cfg(:node_id), Utils.hex_to_str(Utils.cfg(:info_hash))
     incoming = Socket.UDP.open!
 
     Socket.Datagram.send(incoming, payload, peer)
-    run(incoming, peer)
+    run(incoming, peer, n)
   end
 
-  defp run(incoming, peer) do
+
+  defp run(incoming, peer, n) do
     msg = receive_msg(incoming)
-    handle(incoming, msg, peer)
+    handle(incoming, msg, peer, n)
   end
 
   defp receive_msg(incoming) do
@@ -70,12 +51,12 @@ defmodule BtCrawler.PeerHarvester do
   This function handles an successful request. It prints the received
   message in hex and calls the Mainline DHT parser.
   """
-  def handle(incoming, {:ok, {msg, _foo}}, _peer) do
+  def handle(incoming, {:ok, {msg, _foo}}, _peer, n) do
     Logger.info("Received message")
     Logger.info("\n" <> PrettyHex.pretty_hex(msg))
     incoming |> Socket.close
 
-    MlDHT.parse(msg) |> add_peer
+    MlDHT.parse(msg) |> add_peer(n)
   end
 
 
@@ -83,26 +64,27 @@ defmodule BtCrawler.PeerHarvester do
   This function handles an unsuccessful request. It prints the error
   message and runs add_peer() again to start a new request.
   """
-  def handle(incoming, {:error, reason}, peer) do
+  def handle(incoming, {:error, reason}, peer, n) do
     Logger.error "Peer #{inspect peer}: #{reason}"
     incoming |> Socket.close
 
-    add_peer([])
+    add_peer([], n)
   end
+
 
 
   @doc """
   This function gets a list of peers and tries to add each of these
   into the database.
   """
-  def add_peer([]) do
+  def add_peer([], n) do
     Logger.info "[#{__MODULE__}] add_peer []"
     DB.Query.get_not_requested_peer
     |> Utils.ipstr_to_tupel
-    |> get_peers
+    |> get_peers(n+1)
   end
 
-  def add_peer([peer | tail]) do
+  def add_peer([peer | tail], n) do
     Logger.info "peer added: #{inspect peer}"
     peer_str  = Utils.tupel_to_ipstr(peer)
     new_entry = %DB.Peers{peer: peer_str, info_hash: "", requested: 0 }
@@ -114,7 +96,7 @@ defmodule BtCrawler.PeerHarvester do
         Logger.error("Could not add new peer: #{message}")
     end
 
-    add_peer(tail)
+    add_peer(tail, n)
   end
 
 end
