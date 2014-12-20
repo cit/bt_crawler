@@ -1,4 +1,4 @@
-defmodule BtCrawler.MlDHT do
+defmodule BtCrawler.DHT.Mainline do
   require Bencodex
   require Logger
 

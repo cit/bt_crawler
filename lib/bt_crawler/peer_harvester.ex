@@ -1,8 +1,8 @@
 defmodule BtCrawler.PeerHarvester do
   require Logger
 
-  alias BtCrawler.MlDHT, as: MlDHT
-  alias BtCrawler.DB,    as: DB
+  alias BtCrawler.DHT.Mainline
+  alias BtCrawler.DB
   alias BtCrawler.Utils
 
   #####
@@ -13,7 +13,7 @@ defmodule BtCrawler.PeerHarvester do
   """
   def start do
     Logger.info "#{__MODULE__} start (#{inspect self})"
-    get_peers Utils.cfg(:bootstrap_node), 1
+    get_peers(Utils.cfg(:bootstrap_node), 1)
   end
 
   #####
@@ -31,7 +31,7 @@ defmodule BtCrawler.PeerHarvester do
 
   def get_peers(peer, n) do
     Logger.info "request peer: #{inspect peer} (#{n})"
-    payload  = MlDHT.get_peers Utils.cfg(:node_id), Utils.hex_to_str(Utils.cfg(:info_hash))
+    payload  = Mainline.get_peers Utils.cfg(:node_id), Utils.hex_to_str(Utils.cfg(:info_hash))
     incoming = Socket.UDP.open!
 
     Socket.Datagram.send(incoming, payload, peer)
@@ -57,7 +57,7 @@ defmodule BtCrawler.PeerHarvester do
     Logger.info("\n" <> PrettyHex.pretty_hex(msg))
     incoming |> Socket.close
 
-    MlDHT.parse(msg) |> add_peer(n)
+    Mainline.parse(msg) |> add_peer(n)
   end
 
 
@@ -84,6 +84,7 @@ defmodule BtCrawler.PeerHarvester do
     |> Utils.ipstr_to_tupel
     |> get_peers(n+1)
   end
+
 
   def add_peer([peer | tail], n) do
     Logger.info "peer added: #{inspect peer}"
