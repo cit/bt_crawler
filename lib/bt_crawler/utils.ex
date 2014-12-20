@@ -1,4 +1,4 @@
-defmodule Utils do
+defmodule BtCrawler.Utils do
 
   def cfg(name) do
     all_env = Application.get_all_env(:crawler)

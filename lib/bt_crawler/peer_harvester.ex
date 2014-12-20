@@ -3,6 +3,7 @@ defmodule BtCrawler.PeerHarvester do
 
   alias BtCrawler.MlDHT, as: MlDHT
   alias BtCrawler.DB,    as: DB
+  alias BtCrawler.Utils
 
   #####
   ## External API
