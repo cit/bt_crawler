@@ -27,4 +27,5 @@ metadata: [:user_id]
 config :crawler,
 bootstrap_node: { "router.bittorrent.com", 6881 },
 node_id:        "3e3959057292785710e9",
-info_hash:      "1619ecc9373c3639f4ee3e261638f29b33a6cbd6"
+info_hash:      "1619ecc9373c3639f4ee3e261638f29b33a6cbd6",
+recv_timeout:   5000

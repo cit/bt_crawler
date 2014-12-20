@@ -44,7 +44,7 @@ defmodule BtCrawler.PeerHarvester do
   end
 
   defp receive_msg(incoming) do
-    Socket.Datagram.recv(incoming, 0, [timeout: 5000])
+    Socket.Datagram.recv(incoming, 0, [timeout: Utils.cfg(:recv_timeout)])
   end
 
   @doc """
