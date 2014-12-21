@@ -69,33 +69,30 @@ defmodule BtCrawler.DHT.Mainline do
 
 
   @doc ~S"""
-  TODO
+  This function parses DHT response and creates a map of it.
   """
+
   def parse(payload) when is_binary(payload) do
-    try do
-      Bencodex.decode(payload) |> parse
-    rescue
-      e in RuntimeError -> e
-    end
+    result = %{size: byte_size(payload), v: "", values: [], nodes: []}
+    Bencodex.decode(payload) |> parse(result)
   end
 
-  def parse(payload) when is_list(payload) do
-
+  ## Extract error code and message
+  def parse(%{"y" => status, "e" => error}, result) when status == "e" do
+    %{error: error}
   end
 
-  def parse(%{"y" => status, "e" => error_msg}) when status == "e" do
-    Logger.error error_msg
-    []
+  ## Extract version from a DHT response if exists
+  def parse(%{"y" => status, "r" => param_map, "v" => version}, result) when status == "r" do
+    result = %{result | v: String.slice(version, 0..1) }
+    parse(%{"y" => "r", "r" => param_map}, result)
   end
 
-  def parse(%{"y" => status, "r" => param_map, "v" => version}) when status == "r" do
-    Logger.info "version: #{String.slice(version, 0..1)}"
-    parse(%{"y" => "r", "r" => param_map})
-  end
-
-  def parse(%{"y" => status, "r" => param_map}) when status == "r" do
-    Logger.info(inspect extract_values param_map["values"])
-    extract_nodes param_map["nodes"]
+  ## Extract nodes and values from the DHT response and create a list
+  ## of it. If values are empty, it will create an empty list.
+  def parse(%{"y" => status, "r" => param_map}, result) when status == "r" do
+    result = %{result | values: extract_values param_map["values"]}
+    %{result | nodes: extract_nodes param_map["nodes"]}
   end
 
 

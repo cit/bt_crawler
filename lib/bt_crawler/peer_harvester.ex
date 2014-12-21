@@ -31,7 +31,7 @@ defmodule BtCrawler.PeerHarvester do
 
   def get_peers(peer, n) do
     Logger.info "request peer: #{inspect peer} (#{n})"
-    payload  = Mainline.get_peers Utils.cfg(:node_id), Utils.hex_to_str(Utils.cfg(:info_hash))
+    payload  = Mainline.get_peers(Utils.cfg(:node_id), Utils.hex_to_str(Utils.cfg(:info_hash)))
     incoming = Socket.UDP.open!
 
     Socket.Datagram.send(incoming, payload, peer)
@@ -57,7 +57,13 @@ defmodule BtCrawler.PeerHarvester do
     Logger.info("\n" <> PrettyHex.pretty_hex(msg))
     incoming |> Socket.close
 
-    Mainline.parse(msg) |> add_peer(n)
+    case Mainline.parse(msg) do
+      %{error: [err_code, err_msg]} ->
+        Logger.error "DHT response error #{err_code}: #{err_msg}"
+      result ->
+        Logger.info inspect result
+        add_peer(result[:nodes], n)
+    end
   end
 
 
@@ -79,7 +85,6 @@ defmodule BtCrawler.PeerHarvester do
   into the database.
   """
   def add_peer([], n) do
-    Logger.info "[#{__MODULE__}] add_peer []"
     DB.Query.get_not_requested_peer
     |> Utils.ipstr_to_tupel
     |> get_peers(n+1)
