@@ -22,9 +22,4 @@ defmodule BtCrawler.Supervisor do
     supervise(tree, strategy: :one_for_one)
   end
 
-  def crash do
-    Logger.info "#{__MODULE__} crash"
-    Process.exit(Process.whereis(__MODULE__), :kill)
-  end
-
 end
