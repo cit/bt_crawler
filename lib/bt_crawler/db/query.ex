@@ -10,17 +10,17 @@ defmodule BtCrawler.DB.Query do
   """
   def get_not_requested_peer do
     sql_query = """
-      UPDATE peers p
-      SET    requested=1
+      UPDATE ml_dht_nodes p
+      SET    requested=true
       FROM (
-        SELECT peer
-        FROM   peers
-        WHERE  requested=0
+        SELECT socket
+        FROM   ml_dht_nodes
+        WHERE  requested=false
         LIMIT  1
         FOR    UPDATE
      ) sub
-     WHERE p.peer = sub.peer
-     RETURNING p.peer;
+     WHERE p.socket = sub.socket
+     RETURNING p.socket;
     """
 
     result = Postgres.query(BtCrawler.DB.Repo, sql_query, [])
@@ -32,9 +32,9 @@ defmodule BtCrawler.DB.Query do
   This function gets a socket string and returns the complete row from
   the tables peers.
   """
-  def get_peer(sock) when is_binary(sock) do
-    query = from p in BtCrawler.DB.Peers,
-    where: p.peer == ^sock,
+  def get_peer(socket) when is_binary(socket) do
+    query = from p in BtCrawler.DB.MlDHTPeers,
+    where: p.socket == ^socket,
     limit: 1,
     select: p
     BtCrawler.DB.Repo.all(query)
