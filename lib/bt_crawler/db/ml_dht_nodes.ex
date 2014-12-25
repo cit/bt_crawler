@@ -2,7 +2,7 @@ defmodule BtCrawler.DB.MlDHTNodes do
   use Ecto.Model
 
   schema "ml_dht_nodes" do
-    field :added_at,          :datetime, default: Ecto.DateTime.local
+    field :added_at,          :datetime
     field :socket,            :string
     field :info_hash,         :string
     field :requested,         :boolean, default: false

@@ -94,8 +94,7 @@ defmodule BtCrawler.PeerHarvester do
   def add_peer([peer | tail], n) do
     Logger.info "peer added: #{inspect peer}"
     peer_str  = Utils.tupel_to_ipstr(peer)
-    now = Ecto.DateTime.utc
-    new_entry = %DB.MlDHTNodes{added_at: now, socket: peer_str, requested: false}
+    new_entry = %DB.MlDHTNodes{socket: peer_str, requested: false}
 
     case DB.MlDHTNodes.validate(new_entry) do
       {:ok} ->
