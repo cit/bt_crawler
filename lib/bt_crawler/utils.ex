@@ -5,6 +5,17 @@ defmodule BtCrawler.Utils do
     all_env[name]
   end
 
+  def cfg(name, category) do
+    all_env = Application.get_all_env(category)
+    all_env[name]
+  end
+
+  def gen_cfg_func(category) do
+    fn name ->
+      all_env = Application.get_all_env(category)
+      all_env[name]
+    end
+  end
 
   @doc ~S"""
   This function converts a tuple like tupel {"192.168.1.1", 1337} to a

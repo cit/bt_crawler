@@ -1,13 +1,21 @@
-require Logger
-
 defmodule BtCrawler.DB.Repo do
+  require Logger
+
+  alias BtCrawler.Utils
+
   use Ecto.Repo, adapter: Ecto.Adapters.Postgres
 
   def conf do
-    parse_url "ecto://bt_crawler:bt_crawler@localhost/bt_crawler"
+    cfg = Utils.gen_cfg_func(:db)
+
+    parse_url gen_ecto_str(cfg.(:user), cfg.(:pass), cfg.(:host), cfg.(:database))
+  end
+
+  def gen_ecto_str(user, pass, host, database) do
+    "ecto://" <> user <> ":" <> pass <> "@" <> host <> "/" <> database
   end
 
   def priv do
-    app_dir(:bt_crawler, "priv/repo")
+    app_dir(:bt_crawler, Utils.cfg(:app_dir, :db))
   end
 end
