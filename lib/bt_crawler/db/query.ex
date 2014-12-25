@@ -11,7 +11,7 @@ defmodule BtCrawler.DB.Query do
   def get_not_requested_peer do
     sql_query = """
       UPDATE ml_dht_nodes p
-      SET    requested=true
+      SET    requested=true, requested_at=NOW()
       FROM (
         SELECT socket
         FROM   ml_dht_nodes
