@@ -33,11 +33,19 @@ defmodule BtCrawler.DB.Query do
   the tables peers.
   """
   def get_peer(socket) when is_binary(socket) do
-    query = from p in BtCrawler.DB.MlDHTPeers,
+    query = from p in BtCrawler.DB.MlDHTNodes,
     where: p.socket == ^socket,
     limit: 1,
     select: p
     BtCrawler.DB.Repo.all(query)
   end
+
+  def get_id_from_socket(socket) do
+    query = from p in BtCrawler.DB.MlDHTNodes,
+    where: p.socket == ^socket,
+    select: p.id
+    BtCrawler.DB.Repo.all(query)
+  end
+
 
 end

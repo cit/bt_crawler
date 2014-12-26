@@ -52,7 +52,7 @@ defmodule BtCrawler.PeerHarvester do
   This function handles an successful request. It prints the received
   message in hex and calls the Mainline DHT parser.
   """
-  def handle(incoming, {:ok, {msg, _foo}}, _peer, n) do
+  def handle(incoming, {:ok, {msg, _foo}}, peer, n) do
     Logger.info("Received message")
     Logger.info("\n" <> PrettyHex.pretty_hex(msg))
     incoming |> Socket.close
@@ -61,7 +61,10 @@ defmodule BtCrawler.PeerHarvester do
       %{error: [err_code, err_msg]} ->
         Logger.error "DHT response error #{err_code}: #{err_msg}"
       result ->
-        Logger.info inspect result
+        node_id = peer|> Utils.tupel_to_ipstr |> DB.Query.get_id_from_socket
+        unless node_id == [] do
+          Logger.info hd(node_id)
+        end
         add_peer(result[:nodes], n)
     end
   end
