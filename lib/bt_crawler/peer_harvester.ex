@@ -61,13 +61,25 @@ defmodule BtCrawler.PeerHarvester do
       %{error: [err_code, err_msg]} ->
         Logger.error "DHT response error #{err_code}: #{err_msg}"
       result ->
-        node_id = peer|> Utils.tupel_to_ipstr |> DB.Query.get_id_from_socket
-        unless node_id == [] do
-          Logger.info hd(node_id)
-        end
+        Utils.tupel_to_ipstr(peer)
+        |> DB.Query.get_id_from_socket
+        |> add_dht_reponse(result)
+
         add_peer(result[:nodes], n)
     end
   end
+
+  @doc """
+  This function takes a node_id and a dht response and creates a new
+  entry in the table ml_dht_respones.
+  """
+  def add_dht_reponse([], response), do: nil
+
+  def add_dht_reponse([node_id | _tail], response) do
+    entry = %DB.MlDHTResponses{payload_size: response[:size], nodes: length(response[:nodes]),values: length(response[:values]), version: response[:v], ml_dht_nodes_id: node_id}
+    DB.Repo.insert(entry)
+  end
+
 
 
   @doc """
