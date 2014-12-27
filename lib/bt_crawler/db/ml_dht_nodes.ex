@@ -2,13 +2,14 @@ defmodule BtCrawler.DB.MlDHTNodes do
   use Ecto.Model
 
   schema "ml_dht_nodes" do
-    field :added_at,          :datetime
-    field :socket,            :string
-    field :info_hash,         :string
-    field :requested,         :boolean, default: false
-    field :requested_at,      :datetime
-    field :send_handshake,    :boolean, default: false
-    field :send_handshake_at, :datetime
+    field      :added_at,          :datetime
+    field      :socket,            :string
+    field      :info_hash,         :string
+    field      :requested,         :boolean, default: false
+    field      :requested_at,      :datetime
+    field      :send_handshake,    :boolean, default: false
+    field      :send_handshake_at, :datetime
+    belongs_to :torrent,           BtCrawler.DB.Torrents
   end
 
   validate ml_dht_nodes,
