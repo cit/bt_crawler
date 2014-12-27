@@ -11,6 +11,10 @@ defmodule BtCrawler.DB.Repo do
     parse_url gen_ecto_str(cfg.(:user), cfg.(:pass), cfg.(:host), cfg.(:database))
   end
 
+  @doc """
+  This function generates an ecto string which is in the following
+  form: ecto://USERNAME:PASSWORD@HOST/DATABASE
+  """
   def gen_ecto_str(user, pass, host, database) do
     "ecto://" <> user <> ":" <> pass <> "@" <> host <> "/" <> database
   end
