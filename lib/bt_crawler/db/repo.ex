@@ -7,8 +7,8 @@ defmodule BtCrawler.DB.Repo do
 
   def conf do
     cfg = Utils.gen_cfg_func(:db)
-
-    parse_url gen_ecto_str(cfg.(:user), cfg.(:pass), cfg.(:host), cfg.(:database))
+    gen_ecto_str(cfg.(:user), cfg.(:pass), cfg.(:host), cfg.(:database))
+      |> parse_url
   end
 
   @doc """
