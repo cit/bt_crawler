@@ -2,6 +2,29 @@ defmodule BtCrawler.DB.Query do
   import Ecto.Query
   alias  Ecto.Adapters.Postgres, as: Postgres
 
+
+  def get_not_requested_torrent do
+    sql_query = """
+      UPDATE torrents t
+      SET    requested=true, requested_at=NOW()
+      FROM (
+        SELECT info_hash
+        FROM   torrents
+        WHERE  requested=false
+        ORDER  BY info_hash DESC
+        LIMIT  1
+        FOR    UPDATE
+     ) sub
+     WHERE t.info_hash = sub.info_hash
+     RETURNING t.info_hash;
+    """
+
+    result = Postgres.query(BtCrawler.DB.Repo, sql_query, [])
+    %Postgrex.Result{rows: [rows]} = result
+    elem(rows, 0)
+  end
+
+
   @doc """
   This function creates a custom SQL query and executes it on the
   PostgreSQL server. It firsts searches for an not requested peer and
