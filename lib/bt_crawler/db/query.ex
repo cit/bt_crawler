@@ -16,6 +16,7 @@ defmodule BtCrawler.DB.Query do
         SELECT socket
         FROM   ml_dht_nodes
         WHERE  requested=false
+        ORDER  BY info_hash DESC
         LIMIT  1
         FOR    UPDATE
      ) sub
