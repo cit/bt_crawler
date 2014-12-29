@@ -69,11 +69,16 @@ defmodule BtCrawler.PeerHarvester do
         add_peer(result[:values], n, info_hash)
     end
 
+    restart(n, info_hash)
+  end
+
+  def restart(n, info_hash) do
     info_hash
     |> DB.Query.get_not_requested_peer
     |> Utils.ipstr_to_tupel
     |> get_peers(n+1, info_hash)
   end
+
 
   @doc """
   This function takes a node_id and a dht response and creates a new
@@ -96,10 +101,7 @@ defmodule BtCrawler.PeerHarvester do
     Logger.error "Peer #{inspect peer}: #{reason}"
     incoming |> Socket.close
 
-    info_hash
-    |> DB.Query.get_not_requested_peer
-    |> Utils.ipstr_to_tupel
-    |> get_peers(n+1, info_hash)
+    restart(n, info_hash)
   end
 
 
