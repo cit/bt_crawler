@@ -110,7 +110,7 @@ defmodule BtCrawler.PeerHarvester do
   This function gets a list of peers and tries to add each of these
   into the database.
   """
-  def add_peer([], n, _info_hash) do
+  def add_peer([], _n, _info_hash, _torrent_id) do
   end
 
 
