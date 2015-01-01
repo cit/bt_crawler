@@ -53,8 +53,8 @@ defmodule BtCrawler.PeerHarvester do
   message in hex and calls the Mainline DHT parser.
   """
   def handle(incoming, {:ok, {msg, _foo}}, peer, n, info_hash) do
-    Logger.info("Received message")
-    Logger.info("\n" <> PrettyHex.pretty_hex(msg))
+    Logger.debug("Received message")
+    Logger.debug("\n" <> PrettyHex.pretty_hex(msg))
     incoming |> Socket.close
 
     case Mainline.parse(msg) do
