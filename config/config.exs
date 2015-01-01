@@ -29,3 +29,11 @@ bootstrap_node: { "router.bittorrent.com", 6881 },
 node_id:        "3e3959057292785710e9",
 info_hash:      "1619ecc9373c3639f4ee3e261638f29b33a6cbd6",
 recv_timeout:   5000
+
+## Database configuration
+config :db,
+user:     "bt_crawler",
+pass:     "bt_crawler",
+host:     "localhost",
+database: "bt_crawler",
+app_dir:  "priv/repo"
