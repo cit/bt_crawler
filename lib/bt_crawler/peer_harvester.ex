@@ -24,7 +24,7 @@ defmodule BtCrawler.PeerHarvester do
   to it. If this function gets executed n times, it will exit with
   :finish.
   """
-  def get_peers(_peer, n, _info_hash) when n == 100 do
+  def get_peers(_peer, n, _info_hash) when n == 1000 do
     Logger.info "finish"
     exit(:finish)
   end
