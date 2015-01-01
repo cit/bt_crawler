@@ -123,9 +123,9 @@ defmodule BtCrawler.PeerHarvester do
     new_entry = %DB.MlDHTNodes{socket: peer_str, info_hash: info_hash, torrent_id: torrent_id}
 
     case DB.MlDHTNodes.validate(new_entry) do
-      {:ok} ->
+      %{socket: [{:ok}]} ->
         new_entry |> DB.Repo.insert
-      {:error, message} ->
+      %{socket: [error: message]} ->
         Logger.error("Could not add new peer: #{message}")
     end
 
