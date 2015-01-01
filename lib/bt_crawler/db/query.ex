@@ -19,7 +19,7 @@ defmodule BtCrawler.DB.Query do
      RETURNING t.info_hash;
     """
 
-    result = Postgres.query(BtCrawler.DB.Repo, sql_query, [])
+    result = Postgres.query(BtCrawler.DB.Repo, sql_query, [], [timeout: :infinity])
     %Postgrex.Result{rows: [rows]} = result
     elem(rows, 0)
   end
