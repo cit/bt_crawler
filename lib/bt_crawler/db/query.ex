@@ -31,7 +31,7 @@ defmodule BtCrawler.DB.Query do
   updates it immediately. This should guarantee that multiple process
   don not get the same peer.
   """
-  def get_not_requested_peer(info_hash) do
+  def get_not_requested_peer(info_hash, torrent_id) do
     sql_query = """
       UPDATE ml_dht_nodes p
       SET    requested=true, requested_at=NOW()
@@ -40,6 +40,7 @@ defmodule BtCrawler.DB.Query do
         FROM   ml_dht_nodes
         WHERE  requested=false
         AND  (info_hash=$1 OR info_hash='')
+        and    torrent_id=$2
         ORDER  BY info_hash DESC
         LIMIT  1
         FOR    UPDATE
@@ -48,7 +49,7 @@ defmodule BtCrawler.DB.Query do
      RETURNING p.socket;
     """
 
-    result = Postgres.query(BtCrawler.DB.Repo, sql_query, [info_hash])
+    result = Postgres.query(BtCrawler.DB.Repo, sql_query, [info_hash, torrent_id])
     %Postgrex.Result{rows: [rows]} = result
     elem(rows, 0)
   end
