@@ -86,7 +86,7 @@ defmodule BtCrawler.PeerHarvester do
   This function takes a node_id and a dht response and creates a new
   entry in the table ml_dht_respones.
   """
-  def add_dht_reponse([], response), do: nil
+  def add_dht_reponse([], _response), do: nil
 
   def add_dht_reponse([node_id | _tail], response) do
     entry = %DB.MlDHTResponses{payload_size: response[:size], nodes: length(response[:nodes]),values: length(response[:values]), version: response[:v], ml_dht_nodes_id: node_id}
