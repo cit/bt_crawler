@@ -72,5 +72,11 @@ defmodule BtCrawler.DB.Query do
     BtCrawler.DB.Repo.all(query)
   end
 
+  def get_id_from_torrent(info_hash) do
+    query = from t in BtCrawler.DB.Torrents,
+    where: t.info_hash == ^info_hash,
+    select: t.id
+    BtCrawler.DB.Repo.all(query)
+  end
 
 end
