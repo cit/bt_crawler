@@ -65,16 +65,18 @@ defmodule BtCrawler.PeerHarvester do
         |> DB.Query.get_id_from_socket
         |> add_dht_reponse(result)
 
-        add_peer(result[:nodes], n, "")
-        add_peer(result[:values], n, info_hash)
+        [torrent_id] = DB.Query.get_id_from_torrent(info_hash)
+
+        add_peer(result[:nodes], n, "", torrent_id)
+        add_peer(result[:values], n, info_hash, torrent_id)
     end
 
-    restart(n, info_hash)
+    restart(n, info_hash, torrent_id)
   end
 
-  def restart(n, info_hash) do
+  def restart(n, info_hash, torrent_id) do
     info_hash
-    |> DB.Query.get_not_requested_peer
+    |> DB.Query.get_not_requested_peer(torrent_id)
     |> Utils.ipstr_to_tupel
     |> get_peers(n+1, info_hash)
   end
@@ -101,7 +103,8 @@ defmodule BtCrawler.PeerHarvester do
     Logger.error "Peer #{inspect peer}: #{reason}"
     incoming |> Socket.close
 
-    restart(n, info_hash)
+    [torrent_id] = DB.Query.get_id_from_torrent(info_hash)
+    restart(n, info_hash, torrent_id)
   end
 
 
@@ -114,10 +117,10 @@ defmodule BtCrawler.PeerHarvester do
   end
 
 
-  def add_peer([peer | tail], n, info_hash) do
+  def add_peer([peer | tail], n, info_hash, torrent_id) do
     Logger.info "peer added: #{inspect peer}"
     peer_str  = Utils.tupel_to_ipstr(peer)
-    new_entry = %DB.MlDHTNodes{socket: peer_str, info_hash: info_hash}
+    new_entry = %DB.MlDHTNodes{socket: peer_str, info_hash: info_hash, torrent_id: torrent_id}
 
     case DB.MlDHTNodes.validate(new_entry) do
       {:ok} ->
@@ -126,7 +129,7 @@ defmodule BtCrawler.PeerHarvester do
         Logger.error("Could not add new peer: #{message}")
     end
 
-    add_peer(tail, n, info_hash)
+    add_peer(tail, n, info_hash, torrent_id)
   end
 
 end
