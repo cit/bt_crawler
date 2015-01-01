@@ -11,7 +11,7 @@ defmodule BtCrawler.DB.Query do
         SELECT info_hash
         FROM   torrents
         WHERE  requested=false
-        ORDER  BY info_hash DESC
+        ORDER  BY seeders DESC
         LIMIT  1
         FOR    UPDATE
      ) sub
