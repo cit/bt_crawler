@@ -5,7 +5,7 @@ use warnings;
 use DBI;
 
 ## config
-my $torrent_file = '/home/cit/complete';
+my $torrent_file = $ARGV[0] || '/home/cit/complete';
 my $db_username  = 'bt_crawler';
 my $db_password  = 'bt_crawler';
 my $db_name      = 'bt_crawler';
