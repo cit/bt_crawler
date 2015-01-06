@@ -78,7 +78,7 @@ defmodule BtCrawler.DHT.Mainline do
   end
 
   ## Extract error code and message
-  def parse(%{"y" => status, "e" => error}, result) when status == "e" do
+  def parse(%{"y" => status, "e" => error}, _result) when status == "e" do
     %{error: error}
   end
 
