@@ -24,12 +24,13 @@ defmodule BtCrawler.PeerHarvester do
   to it. If this function gets executed n times, it will exit with
   :finish.
   """
-  def get_peers(_peer, n, _info_hash) when n == 1000 do
-    Logger.info "finish"
-    exit(:finish)
-  end
-
   def get_peers(peer, n, info_hash) do
+    ## check if n has reached its end
+    if n == Utils.cfg(:number_of_requests_per_torrent) do
+      Logger.info "finish"
+      exit(:finish)
+    end
+
     Logger.info "request peer: #{inspect peer} (#{n})"
     payload  = Mainline.get_peers(Utils.cfg(:node_id), Utils.hex_to_str(info_hash))
     incoming = Socket.UDP.open!
