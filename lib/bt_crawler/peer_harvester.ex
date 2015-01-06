@@ -75,6 +75,18 @@ defmodule BtCrawler.PeerHarvester do
     restart(n, info_hash, torrent_id)
   end
 
+  @doc """
+  This function handles an unsuccessful request. It prints the error
+  message and runs add_peer() again to start a new request.
+  """
+  def handle(incoming, {:error, reason}, peer, n, info_hash) do
+    Logger.error "Peer #{inspect peer}: #{reason}"
+    incoming |> Socket.close
+
+    [torrent_id] = DB.Query.get_id_from_torrent(info_hash)
+    restart(n, info_hash, torrent_id)
+  end
+
   def restart(n, info_hash, torrent_id) do
     info_hash
     |> DB.Query.get_not_requested_peer(torrent_id)
@@ -93,21 +105,6 @@ defmodule BtCrawler.PeerHarvester do
     entry = %DB.MlDHTResponses{payload_size: response[:size], nodes: length(response[:nodes]),values: length(response[:values]), version: response[:v], ml_dht_nodes_id: node_id}
     DB.Repo.insert(entry)
   end
-
-
-
-  @doc """
-  This function handles an unsuccessful request. It prints the error
-  message and runs add_peer() again to start a new request.
-  """
-  def handle(incoming, {:error, reason}, peer, n, info_hash) do
-    Logger.error "Peer #{inspect peer}: #{reason}"
-    incoming |> Socket.close
-
-    [torrent_id] = DB.Query.get_id_from_torrent(info_hash)
-    restart(n, info_hash, torrent_id)
-  end
-
 
 
   @doc """
