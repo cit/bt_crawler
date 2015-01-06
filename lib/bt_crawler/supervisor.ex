@@ -16,7 +16,7 @@ defmodule BtCrawler.Supervisor do
        worker(BtCrawler.DB.Repo, []),
 
        ## Supervisor for the Peer Harvester
-       supervisor(BtCrawler.HarvesterSupervisor, [])
+       supervisor(BtCrawler.PeerHarvesterSupervisor, [])
     ]
 
     supervise(tree, strategy: :one_for_one)

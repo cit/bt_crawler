@@ -1,4 +1,4 @@
-defmodule BtCrawler.HarvesterSupervisor do
+defmodule BtCrawler.PeerHarvesterSupervisor do
   use Supervisor
 
   require Logger
