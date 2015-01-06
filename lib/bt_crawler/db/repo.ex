@@ -1,6 +1,4 @@
 defmodule BtCrawler.DB.Repo do
-  require Logger
-
   alias BtCrawler.Utils
 
   use Ecto.Repo, adapter: Ecto.Adapters.Postgres
