@@ -7,7 +7,7 @@ defmodule BtCrawler do
     Logger.info "#{__MODULE__} start"
 
     ## start main supervisor
-    {:ok, sup} = BtCrawler.Supervisor.start_link()
+    {:ok, _sup} = BtCrawler.Supervisor.start_link()
   end
 
 end
