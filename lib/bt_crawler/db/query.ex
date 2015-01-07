@@ -3,6 +3,38 @@ defmodule BtCrawler.DB.Query do
   alias  Ecto.Adapters.Postgres, as: Postgres
 
 
+  @doc """
+  This functions returns socket and the info_hash of a peer, which has
+  not received a handshake yet. This function returns a tupel, where
+  the first element is the socket and the second is the info_hash.
+
+    ## Example
+    iex> BtCrawler.DB.Query.get_not_send_handshake_peer
+    {"2.50.4.124:16972", "fcc0eec50445852e8de095e26f6c2959401979c4"}
+  """
+  def get_not_send_handshake_peer do
+    sql_query = """
+      UPDATE ml_dht_nodes p
+      SET    send_handshake=true, send_handshake_at=NOW()
+      FROM (
+        SELECT socket
+        FROM   ml_dht_nodes
+        WHERE  send_handshake=false
+        AND    info_hash != ''
+        ORDER  BY info_hash DESC
+        LIMIT  1
+        FOR    UPDATE
+     ) sub
+     WHERE p.socket = sub.socket
+     RETURNING p.socket, p.info_hash;
+    """
+
+    result = Postgres.query(BtCrawler.DB.Repo, sql_query, [])
+    %Postgrex.Result{rows: [rows]} = result
+    rows
+  end
+
+
   def get_not_requested_torrent do
     sql_query = """
       UPDATE torrents t
