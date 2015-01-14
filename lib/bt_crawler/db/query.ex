@@ -21,12 +21,12 @@ defmodule BtCrawler.DB.Query do
         FROM   ml_dht_nodes
         WHERE  send_handshake=false
         AND    info_hash != ''
-        ORDER  BY info_hash DESC
+        ORDER  BY requested_at DESC
         LIMIT  1
         FOR    UPDATE
      ) sub
      WHERE p.socket = sub.socket
-     RETURNING p.socket, p.info_hash;
+     RETURNING p.socket, p.info_hash, p.id;
     """
 
     result = Postgres.query(BtCrawler.DB.Repo, sql_query, [])
