@@ -29,6 +29,7 @@ defmodule BtCrawler.Mixfile do
   defp deps do
     [{:socket,     "~> 0.2.8"},
      {:bencodex,   "~> 1.0.0"},
+     {:wire,       "~> 0.2.0"},
      {:pretty_hex, "~> 0.0.1"},
      {:ecto,       "~> 0.2.4"},
      {:postgrex,   "~> 0.6.0"}
