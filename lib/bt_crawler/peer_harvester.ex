@@ -102,7 +102,13 @@ defmodule BtCrawler.PeerHarvester do
   def add_dht_reponse([], _response), do: nil
 
   def add_dht_reponse([node_id | _tail], response) do
-    entry = %DB.MlDHTResponses{payload_size: response[:size], nodes: length(response[:nodes]),values: length(response[:values]), version: response[:v], ml_dht_nodes_id: node_id}
+    entry = %DB.MlDHTResponses{
+      payload_size:    response[:size],
+      nodes:           length(response[:nodes]),
+      values:          length(response[:values]),
+      version:         response[:v],
+      ml_dht_nodes_id: node_id
+    }
     DB.Repo.insert(entry)
   end
 
@@ -116,7 +122,7 @@ defmodule BtCrawler.PeerHarvester do
 
 
   def add_peer([peer | tail], n, info_hash, torrent_id) do
-    Logger.info "peer added: #{inspect peer}"
+    # Logger.info "peer added: #{inspect peer}"
     peer_str  = Utils.tupel_to_ipstr(peer)
     new_entry = %DB.MlDHTNodes{socket: peer_str, info_hash: info_hash, torrent_id: torrent_id}
 
