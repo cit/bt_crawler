@@ -29,9 +29,12 @@ defmodule BtCrawler.DB.Query do
      RETURNING p.socket, p.info_hash, p.id;
     """
 
-    result = Postgres.query(BtCrawler.DB.Repo, sql_query, [])
-    %Postgrex.Result{rows: [rows]} = result
-    rows
+    case Postgres.query(BtCrawler.DB.Repo, sql_query, []) do
+      %Postgrex.Result{rows: []} ->
+        nil
+      %Postgrex.Result{rows: [rows]} ->
+        rows
+    end
   end
 
 
