@@ -4,3 +4,6 @@ erl_crash.dump
 *.ez
 /bt_crawler
 /mix.lock
+/misc/db-model.mwb.bak
+/complete
+/error.log
