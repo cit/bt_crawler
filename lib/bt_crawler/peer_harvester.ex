@@ -5,21 +5,23 @@ defmodule BtCrawler.PeerHarvester do
   alias BtCrawler.DB
   alias BtCrawler.Utils
 
+  @module "[PeerHarvester]"
+
   #####
   ## External API
 
-  @doc """
+  @doc ~S"""
   This function starts the DHT crawler.
   """
   def start(info_hash) do
-    Logger.info "#{__MODULE__} start (#{inspect self} with #{info_hash})"
+    Logger.info "#{@module} start (#{inspect self} with #{info_hash})"
     get_peers(Utils.cfg(:bootstrap_node), 1, info_hash)
   end
 
   #####
   ## Interal API
 
-  @doc """
+  @doc ~S"""
   This function gets a fresh peer and starts a DHT find_node request
   to it. If this function gets executed n times, it will exit with
   :finish.
@@ -31,7 +33,7 @@ defmodule BtCrawler.PeerHarvester do
       exit(:finish)
     end
 
-    Logger.info "request peer: #{inspect peer} (#{n})"
+    Logger.info "#{@module} request peer: #{inspect peer} (#{n})"
     payload  = Mainline.get_peers(Utils.cfg(:node_id), Utils.hex_to_str(info_hash))
     incoming = Socket.UDP.open!
 
@@ -60,7 +62,7 @@ defmodule BtCrawler.PeerHarvester do
 
     case Mainline.parse(msg) do
       %{error: [err_code, err_msg]} ->
-        Logger.error "DHT response error #{err_code}: #{err_msg}"
+        Logger.error "#{@module} DHT response error #{err_code}: #{err_msg}"
       result ->
         Utils.tupel_to_ipstr(peer)
         |> DB.Query.get_id_from_socket
@@ -80,7 +82,7 @@ defmodule BtCrawler.PeerHarvester do
   message and runs add_peer() again to start a new request.
   """
   def handle(incoming, {:error, reason}, peer, n, info_hash) do
-    Logger.error "Peer #{inspect peer}: #{reason}"
+    Logger.info "#{@module} Peer #{inspect peer}: #{reason}"
     incoming |> Socket.close
 
     [torrent_id] = DB.Query.get_id_from_torrent(info_hash)
@@ -102,7 +104,13 @@ defmodule BtCrawler.PeerHarvester do
   def add_dht_reponse([], _response), do: nil
 
   def add_dht_reponse([node_id | _tail], response) do
-    entry = %DB.MlDHTResponses{payload_size: response[:size], nodes: length(response[:nodes]),values: length(response[:values]), version: response[:v], ml_dht_nodes_id: node_id}
+    entry = %DB.MlDHTResponses{
+      payload_size:    response[:size],
+      nodes:           length(response[:nodes]),
+      values:          length(response[:values]),
+      version:         response[:v],
+      ml_dht_nodes_id: node_id
+    }
     DB.Repo.insert(entry)
   end
 
@@ -111,12 +119,10 @@ defmodule BtCrawler.PeerHarvester do
   This function gets a list of peers and tries to add each of these
   into the database.
   """
-  def add_peer([], _n, _info_hash, _torrent_id) do
-  end
-
+  def add_peer([], _n, _info_hash, _torrent_id), do: nil
 
   def add_peer([peer | tail], n, info_hash, torrent_id) do
-    Logger.info "peer added: #{inspect peer}"
+    # Logger.info "peer added: #{inspect peer}"
     peer_str  = Utils.tupel_to_ipstr(peer)
     new_entry = %DB.MlDHTNodes{socket: peer_str, info_hash: info_hash, torrent_id: torrent_id}
 
@@ -124,7 +130,7 @@ defmodule BtCrawler.PeerHarvester do
       %{socket: [{:ok}]} ->
         new_entry |> DB.Repo.insert
       %{socket: [error: message]} ->
-        Logger.error("Could not add new peer: #{message}")
+        Logger.info("#{@module} Could not add new peer: #{message}")
     end
 
     add_peer(tail, n, info_hash, torrent_id)

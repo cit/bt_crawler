@@ -17,6 +17,18 @@ defmodule BtCrawler.Utils do
     end
   end
 
+  def ipv6_to_ipstr(binary), do: ipv6_to_ipstr(binary, "")
+  def ipv6_to_ipstr(<<>>, str), do: String.slice(str, 0, String.length(str)-1)
+  def ipv6_to_ipstr(binary, str) do
+    <<oct::16, rest::binary>> = binary
+
+    new_str = str <> Integer.to_string(oct, 16)
+    |> String.downcase
+
+    ipv6_to_ipstr(rest, new_str <> ":")
+  end
+
+
   @doc ~S"""
   This function converts a tuple like tupel {"192.168.1.1", 1337} to a
   binary

@@ -27,11 +27,14 @@ defmodule BtCrawler.Mixfile do
   #
   # Type `mix help deps` for more examples and options
   defp deps do
-    [{:socket,     "~> 0.2.8"},
-     {:bencodex,   "~> 1.0.0"},
-     {:pretty_hex, "~> 0.0.1"},
-     {:ecto,       "~> 0.2.4"},
-     {:postgrex,   "~> 0.6.0"}
+    [{:socket,              "~> 0.2.8"},
+     {:bencodex,            "~> 1.0.0"},
+     {:wire,                "~> 0.2.0"},
+     # {:wire,      path: "/home/cit/Dojo/wire/"},
+     {:pretty_hex,          "~> 0.0.1"},
+     {:ecto,                "~> 0.2.4"},
+     {:postgrex,            "~> 0.6.0"},
+     {:logger_file_backend, "~> 0.0.3"}
     ]
   end
 end
