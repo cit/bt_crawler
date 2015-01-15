@@ -10,11 +10,21 @@ use Mix.Config
 
 # Sample configuration:
 #
+
+config :logger,
+backends: [:console,
+           {LoggerFileBackend, :error_log}]
+
 config :logger, :console,
 level: :info,
 format: "$date $time [$level] $metadata$message\n",
 colors: [:enabled],
 metadata: [:user_id]
+
+config :logger, :error_log,
+level: :error,
+format: "$date $time [$level] $metadata$message\n",
+path: "error.log"
 
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment
@@ -24,14 +34,6 @@ metadata: [:user_id]
 #
 #     import_config "#{Mix.env}.exs"
 
-config :crawler,
-bootstrap_node: { "router.bittorrent.com", 6881 },
-node_id:        "3e3959057292785710e9",
-info_hash:      "1619ecc9373c3639f4ee3e261638f29b33a6cbd6",
-recv_timeout:   5000,
-number_of_requests_per_torrent: 1000,
-listening_port: 6881
-
 ## Database configuration
 config :db,
 user:     "bt_crawler",
@@ -39,3 +41,19 @@ pass:     "bt_crawler",
 host:     "localhost",
 database: "bt_crawler",
 app_dir:  "priv/repo"
+
+## DHT Peer Harvester
+config :crawler,
+bootstrap_node: { "dht.transmissionbt.com", 6881 },
+# bootstrap_node: { "router.bittorent.com", 6881 },
+node_id:        "3e3959057292785710e9",
+info_hash:      "1619ecc9373c3639f4ee3e261638f29b33a6cbd6",
+recv_timeout:   5000,
+number_of_requests_per_torrent: 1000,
+listening_port: 6881
+
+## Handshake Requester
+config :handshake,
+extensions: <<128, 0, 0, 0, 0, 19, 0, 5>>,
+number_of_packets: 15,
+recv_timeout: 10000
